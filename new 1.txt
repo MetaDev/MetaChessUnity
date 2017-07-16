@@ -1,0 +1,3 @@
+
+show where the piece can move, for piece types
+show the turn of a piece/tile
