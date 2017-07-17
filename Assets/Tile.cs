@@ -69,46 +69,21 @@ public class Tile
         {
             return;
         }
-        //divide one for sure
-        Divide();
-        //if fraction higher than 2, further divide children equally
-        if (fraction == 4)
+        childFraction = fraction;
+        Children = new Tile[fraction, fraction];
+        for (int i = 0; i < fraction; i++)
         {
-            for (int i = 0; i < 2; i++)
+            for (int j = 0; j < fraction; j++)
             {
-                for (int j = 0; j < 2; j++)
-                {
-                    Children[i,j].Divide();
-                }
-            }
-        }
-        else if (fraction == 8)
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                {
-                    Children[i,j].Divide(4);
-                }
-            }
-        }
-
-    }
-
-    // don't allow empty (null) children
-    public void Divide()
-    {
-        childFraction = 2;
-        Children = new Tile[2,2];
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 2; j++)
-            {
-                Children[i,j] = new Tile(
+                Children[i, j] = new Tile(
                         ((i + j) % 2) % 2, i, j, Level + 1, this);
             }
         }
+      
+
     }
+
+    
 
     public int GetChildFraction()
     {
@@ -165,6 +140,7 @@ public class Tile
         return GetAbsX() + GetAbsSize() / 2;
 
     }
+    
     //TODO
     public float GetDrawY()
     {

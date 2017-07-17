@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class LevelBuilder : MonoBehaviour {
     public GameObject square;
+    public  Board board;
     // Use this for initialization
     void Start () {
         
-        var board = new Board();
+        board = new Board();
         board.RandomFractionBoard(5);
         ProcDraw.DrawBoardRecursive(square, board, board.RootTile);
 	}

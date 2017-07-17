@@ -1,3 +1,52 @@
 
 show where the piece can move, for piece types
 show the turn of a piece/tile
+
+
+  //find all close cubs
+        Collider[] hitColliders = Physics.OverlapSphere(new Vector3(tile.GetDrawX(), (tile.GetAbsSize() / 20), tile.GetDrawY())
+            , tile.GetAbsSize());
+        int i = 0;
+        var angle = Mathf.Atan2(horMov, -verMov) * Mathf.Rad2Deg;
+        float diffAngle = 360;
+        Tile neighbour = null;
+        ProcDraw.SetCubeColor(tile.cube, Color.red);
+        var threshold = 10;
+        var tilePos = new Vector3(tile.GetDrawX(), 0, tile.GetDrawY());
+      
+        var dist = float.MaxValue;
+
+        while (i < hitColliders.Length)
+        {
+            var posHit = new Vector3(hitColliders[i].transform.position.x, 0, hitColliders[i].transform.position.z);
+            var hitAngle = Mathf.Atan2((tilePos - posHit).x, (tilePos - posHit).z) * Mathf.Rad2Deg;
+            var tile2 = hitColliders[i].GetComponent<TileGraphic>().tile;
+            dist = Vector2.Distance(posHit, tilePos);
+            var factor = (angle - hitAngle)/45 + (tilePos - posHit).magnitude/tile.GetAbsSize();
+            // go the cube which the angle direction is closest to movement, favour positive difference
+            if (hitColliders[i].gameObject != tile.cube &&
+                angle - hitAngle >= 0
+                && angle - hitAngle < 45 &&
+                angle - hitAngle < diffAngle &&
+                dist< (tile.GetAbsSize()+tile2.GetAbsSize())*Mathf.Sqrt(1/2.0f)
+                )
+            {
+
+
+                //if angle is not perfect 
+                //if (diffAngle > 0 && Vector2.Distance(posHit, tilePos))
+                //{
+
+                //}
+                //else
+                //{
+                    
+                    
+                    diffAngle = angle - hitAngle;
+                    neighbour =tile2;
+                //}
+                    
+                
+
+            }
+            i++;

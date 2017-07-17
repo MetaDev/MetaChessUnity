@@ -8,9 +8,9 @@ public class ProcDraw : MonoBehaviour {
     public static void DrawTile(GameObject cube,Tile tile,Board board)
     {
         var newsquare = Instantiate(cube);
-        newsquare.GetComponent<MovementVisual>().tile = tile;
+        newsquare.GetComponent<TileGraphic>().tile = tile;
         tile.cube = newsquare;
-        newsquare.GetComponent<MovementVisual>().board = board;
+        
         newsquare.GetComponent<Renderer>().material.color = new Color(tile.Color, tile.Color, tile.Color);
         newsquare.transform.localScale = new Vector3(tile.GetAbsSize(), tile.GetAbsSize(), tile.GetAbsSize());
         newsquare.transform.position = new Vector3(tile.GetDrawX(), (tile.GetAbsSize() / 20), tile.GetDrawY());
