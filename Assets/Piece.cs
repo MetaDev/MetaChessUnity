@@ -18,8 +18,8 @@ public class Piece
         this.Color = color;
         this.Type = type;
       
-        //Directions.GetDiagDirections(allowedMovement);
-        allowedMovement.Add(Directions.getDirection(1,-1));
+        Directions.GetDiagDirections(allowedMovement);
+        //allowedMovement.Add(Directions.getDirection(1,-1));
 
     }
     public Tile GetTilePos()
