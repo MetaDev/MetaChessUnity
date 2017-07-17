@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 public class Board
@@ -48,13 +49,13 @@ public class Board
 
     }
 
-    public void RandomFractionBoard()
+    public void RandomFractionBoard(int iterations=20)
     {
 
         int fractionUnderMaxFraction = 32;
         int maxAbsFraction = maxTurnBasedTileFraction
                 + fractionUnderMaxFraction;
-        int iterations = 10;
+        
 
         // the more iterations the more fractioned tiles
 
@@ -75,60 +76,142 @@ public class Board
         }
 
     }
-    #region Tile arithmic 
-    public Tile FindTileNeighBour(Tile tile, int horMov, int verMov, bool hoover, int startFraction)
+    private bool TileMovOutParent(Tile tile, int horMov, int verMov )
     {
-        Tile neighbour = tile;
-        if (neighbour.GetParent() == null || !BoardLogic.IsSingleTileMovement(horMov) || !BoardLogic.IsSingleTileMovement(verMov))
+        
+        return tile.I + horMov >= 2 ||
+            tile.I + horMov < 0 ||
+            tile.J + verMov >= 2 ||
+            tile.J + verMov < 0;
+    }
+    #region Tile arithmic 
+    public Tile FindTileNeighBour(Tile tile, int horMov, int verMov)
+    {
+        Debug.Log(tile.I + " test " + tile.J);
+        Tile neighbour=null;
+        if (tile.GetParent() == null || !BoardLogic.IsSingleTileMovement(horMov) || !BoardLogic.IsSingleTileMovement(verMov))
         {
             return null;
         }
-        if (tile.I + horMov > tile.GetParent().GetChildFraction() - 1 || 
-            tile.I + horMov < 0 || 
-            tile.J + verMov > tile.GetParent().GetChildFraction() - 1 || 
-            neighbour.J + verMov < 0)
+        Stack<Tuple<int, int>> indices = new Stack<Tuple<int, int>>();
+        
+        if (TileMovOutParent(tile,horMov,verMov))
         {
+            //The piece is at the border
+            //find piece without children that is closest
+
+            //move into parents until one has neighbours
+            Tile it = tile;
+            Tile prevTile = it;
             
-            neighbour = GetTileFromAbsPosition(tile.GetAbsCenterX() + horMov * tile.GetAbsSize(), 
-                                        tile.GetAbsCenterY() + verMov * tile.GetAbsSize(), startFraction);
+            while (prevTile.GetParent() != null && TileMovOutParent(prevTile, horMov, verMov))
+            {
+                prevTile = it;
+                //safe indices from ascending process in hierarchy
+                Debug.Log("en "+ it.I + " " + it.J + " " + it.Level);
+                indices.Push(Tuple.Create(it.I, it.J));
+                it = it.GetParent();
+                
+            }
+            Debug.Log("sibling I" + prevTile.I + " move"+ + horMov + " J " + (prevTile.J+ "mov " + verMov));
+            if (prevTile.GetParent()!=null && !TileMovOutParent(prevTile, horMov, verMov))
+            {
+                Debug.Log("sibling"+(it.I + horMov) + " " + (it.J + verMov));
+                //neighbour is sibling
+                neighbour = it.Children[prevTile.I + horMov, prevTile.J + verMov];
+            }
+            //if movement not possible and top level is reached try seperate
+            if (neighbour == null && Mathf.Abs(horMov)+Mathf.Abs(verMov)==2)
+            {
+                //first hor than ver
+
+                var tempNeighbour = FindTileNeighBour(tile, horMov, 0);
+                if (tempNeighbour != null)
+                {
+                    tempNeighbour = FindTileNeighBour(tempNeighbour, 0, verMov);
+                }
+                //Than ver and hor
+                if (tempNeighbour == null)
+                {
+                    tempNeighbour = FindTileNeighBour(tile, 0, verMov);
+                    if (tempNeighbour != null)
+                    {
+                        tempNeighbour = FindTileNeighBour(tempNeighbour, horMov, 0);
+                    }
+                }
+                neighbour = tempNeighbour;
+            }
+            
         }
         else
         {
-            neighbour = neighbour.GetParent().Children[neighbour.I + horMov, neighbour.J + verMov];
+            
+            neighbour = tile.GetParent().Children[tile.I + horMov, tile.J + verMov];
         }
+        
         if (neighbour == null)
         {
             return neighbour;
         }
-        if (neighbour.Children != null && !hoover)
+        //go deeper into the children
+        if (neighbour.Children != null)
         {
-            neighbour = GetClosestLargestFractionTileFromNeighbour(tile, neighbour, verMov, horMov);
+            var it = neighbour;
+            //init values should not be used
+            //first I
+            
+            int newI= (neighbour.I + horMov + 2)%2;
+            int newJ= (neighbour.J + verMov + 2)%2;
+           
+            while (it.Children != null && indices.Count >0)
+            {
+                newI = (indices.Peek().Item1 + horMov + 2) % 2;
+                newJ = (indices.Peek().Item2 + verMov + 2) % 2;
+                Debug.Log("de "+ indices.Peek().Item1 + " " + horMov + " " + indices.Peek().Item2 + " " + verMov);
+                indices.Pop();
+                it = it.Children[newI,newJ];
+            }
+            
+            neighbour = it;
+            if (neighbour.Children != null)
+            {
+                it = neighbour.Children[(newI - verMov + 2) % 2, (newJ - horMov + 2) % 2];
+                //newI = (newI - verMov + 2)%2;
+                //newJ = (newJ - horMov +2)%2;
+                while (it.Children != null)
+                {  
+                    it = it.Children[newI, newJ];
+                }
+                neighbour = it;
+            }
+            
         }
+        
         return neighbour;
     }
-    public Tile GetTileFromAbsPosition(float x, float y, int maxFraction)
-    {
-        if (x < 0 || y < 0 || x > rootSize || y > rootSize)
-        {
-            return null;
-        }
-        Tile it = RootTile;
-        int i;
-        int j;
-        float childSize;
-        while (it.Children != null && it.GetAbsFraction() * it.GetChildFraction() <= maxFraction)
-        {
-            childSize = it.GetAbsSize() / it.GetChildFraction();
-            i = (int)Mathf.Floor(x / childSize);
-            j = (int)Mathf.Floor(y / childSize);
-            it = it.Children[i,j];
-            x -= i * childSize;
-            y -= j * childSize;
-            x = Mathf.Max(0, x);
-            y = Mathf.Max(0, y);
-        }
-        return it;
-    }
+    //public Tile GetTileFromAbsPosition(float x, float y, int maxFraction)
+    //{
+    //    if (x < 0 || y < 0 || x > rootSize || y > rootSize)
+    //    {
+    //        return null;
+    //    }
+    //    Tile it = RootTile;
+    //    int i;
+    //    int j;
+    //    float childSize;
+    //    while (it.Children != null && it.GetAbsFraction() * it.GetChildFraction() <= maxFraction)
+    //    {
+    //        childSize = it.GetAbsSize() / it.GetChildFraction();
+    //        i = (int)Mathf.Floor(x / childSize);
+    //        j = (int)Mathf.Floor(y / childSize);
+    //        it = it.Children[i, j];
+    //        x -= i * childSize;
+    //        y -= j * childSize;
+    //        x = Mathf.Max(0, x);
+    //        y = Mathf.Max(0, y);
+    //    }
+    //    return it;
+    //}
 
     public Tile GetClosestLargestFractionTileFromNeighbour(Tile tile, Tile neighbour, int verMov, int horMov)
     {

@@ -17,8 +17,9 @@ public class Piece
         this.Board = board;
         this.Color = color;
         this.Type = type;
-        Directions.GetDiagDirections(allowedMovement);
-        Directions.GetOrthoDirections(allowedMovement);
+      
+        //Directions.GetDiagDirections(allowedMovement);
+        allowedMovement.Add(Directions.getDirection(1,-1));
 
     }
     public Tile GetTilePos()
@@ -37,26 +38,24 @@ public class Piece
         {
             int i = dir.X * range;
             int j = dir.Y * range;
-            var t = FindPath(i, j, false);
-            allTiles.AddRange(FindPath(i, j, true));
-            Debug.Log(t.Count);
+            var t = FindPath(i, j);
+            allTiles.AddRange(t);
         }
         return allTiles;
     }
-    
-    public bool HandleMovement(Direction direction, int range)
-    {
-        int i = direction.X * range;
-        int j = direction.Y * range;
-        List<Tile> path = FindPath( i, j, hoover);
-        if (path.Count < range)
-        {
-            return false;
-        }
-        return MoveWithPath(path);
-    }
-    #region piece movement
-    public List<Tile> FindPath( int i, int j, bool hoover)
+
+    //public bool HandleMovement(Direction direction, int range)
+    //{
+    //    int i = direction.X * range;
+    //    int j = direction.Y * range;
+    //    List<Tile> path = FindPath( i, j,false);
+    //    if (path.Count < range)
+    //    {
+    //        return false;
+    //    }
+    //    return MoveWithPath(path);
+    //}
+    public List<Tile> FindPath(Tile tile,int i, int j)
     {
         //use direction coordinates to construct a tile path
         int verMov;
@@ -64,10 +63,10 @@ public class Piece
         int remainingHorMov = i;
 
         int remainingVerMov = j;
-      
+
         List<Tile> path = new List<Tile>();
-        Tile previousTile = Board.GetTileFromPiece(this);
-        int startFraction = Board.GetTileFromPiece(this).GetAbsFraction();
+        Tile previousTile = tile;
+
         //continue while movement left
         while (Mathf.Abs(remainingHorMov) + Mathf.Abs(remainingVerMov) > 0)
         {
@@ -78,18 +77,9 @@ public class Piece
             remainingHorMov = remainingHorMov - horMov;
             remainingVerMov = remainingVerMov - verMov;
             //on the last step of the movement hoover is always false
-            if (Mathf.Abs(remainingHorMov) + Mathf.Abs(remainingVerMov) == 0)
-            {
-                previousTile = Board.FindTileNeighBour(previousTile,
-                        horMov, verMov, false, startFraction);
-
-            }
-            else
-            {
-                previousTile = Board.FindTileNeighBour(previousTile,
-                        horMov, verMov, hoover, startFraction);
-
-            }
+            previousTile = Board.FindTileNeighBour(previousTile,
+                        horMov, verMov);
+            
             if (previousTile == null)
             {
                 return path;
@@ -97,14 +87,12 @@ public class Piece
             path.Add(previousTile);
 
         }
-
-        Tile lastTile = path[path.Count - 1];
-        // movement did not succeed
-        if (lastTile == null)
-        {
-            return null;
-        }
         return path;
+    }
+    #region piece movement
+    public List<Tile> FindPath(int i, int j)
+    {
+        return FindPath(Board.GetTileFromPiece(this), i, j);
     }
     public bool MoveWithPath( List<Tile> path)
     {

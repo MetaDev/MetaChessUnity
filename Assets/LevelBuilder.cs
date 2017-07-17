@@ -8,7 +8,7 @@ public class LevelBuilder : MonoBehaviour {
     void Start () {
         
         var board = new Board();
-        board.RandomFractionBoard();
+        board.RandomFractionBoard(5);
         ProcDraw.DrawBoardRecursive(square, board, board.RootTile);
 	}
 	

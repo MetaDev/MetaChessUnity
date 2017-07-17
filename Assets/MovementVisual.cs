@@ -9,11 +9,12 @@ public class MovementVisual : MonoBehaviour {
     bool flip = false;
     void OnMouseDown()
     {
-        var piece = new Piece(Piece.PieceType.pawn, board, 1);
         
+        var piece = new Piece(Piece.PieceType.pawn, board, 1);
+
         piece.SetTilePos(tile);
         flip = !flip;
-        foreach (Tile tPath in piece.GetAllAccesibleTiles(8))
+        foreach (Tile tPath in piece.GetAllAccesibleTiles(3))
         {
             Color col;
             if (flip)
