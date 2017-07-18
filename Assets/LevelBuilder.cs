@@ -18,6 +18,7 @@ public class LevelBuilder : MonoBehaviour
     public Player player2;
     private List<TileGraphic> tiles = new List<TileGraphic>();
     public Map<PieceGraphic, TileGraphic> pieceTile = new Map<PieceGraphic, TileGraphic>();
+
     public int score;
     // Use this for initialization
     void Start()
@@ -42,11 +43,8 @@ public class LevelBuilder : MonoBehaviour
         player.PieceGraphic = GetRandomPieceFromSide(player.side);
         player2.PieceGraphic = GetRandomPieceFromSide(player2.side);
     }
+
     
-    public void BuildLevel()
-    {
-        
-    }
     public void removePiece(PieceGraphic pieceGr)
     {
         pieceTile.Remove(pieceGr);
@@ -76,18 +74,17 @@ public class LevelBuilder : MonoBehaviour
         //TODO if the piece contains a player, do something with it
         Destroy(pieceGr);
     }
+    public List<PieceGraphic> GetAllPiecesFromSide(int side)
+    {
+        return pieceTile.AsEnumerable().Select(p => p.Key).Where(p => p.piece.Color == side).ToList();
+    }
     PieceGraphic GetRandomPieceFromSide(int side)
     {
-        PieceGraphic piece = null;
-        foreach (PieceGraphic pieceIt in pieceTile.AsEnumerable().Select(p => p.Key))
-        {
 
-            if (pieceIt.piece.Color == side)
-            {
-                piece = pieceIt;
-            }
-        }
-        return piece;
+        return pieceTile.AsEnumerable().Select(p => p.Key)
+            .Where(p => p.piece.Color == side).Skip(Random.Range(0, pieceTile.Count() - 1))
+            .First();
+   
     }
     TileGraphic GetRandomUnoccupiedTile()
     {
@@ -108,14 +105,21 @@ public class LevelBuilder : MonoBehaviour
         pieceTile.Remove(pieceG);
         pieceTile.Add(pieceG, tileGr);
         pieceG.SetPiecePosition(tileGr);
-        UpdatePathVisual();
+
     }
     public void SetPieceOnTile(Player player, TileGraphic tileGr)
     {
+        if (pieceTile.Reverse.Contains(tileGr))
+        {
+            Debug.Log("you're trying to place a player on tile that is already occupied");
+            return;
+        }
+       
         pieceTile.Remove(player.PieceGraphic);
+       
         pieceTile.Add(player.PieceGraphic, tileGr);
         player.SetPiecePosition(tileGr);
-        UpdatePathVisual();
+        UpdatePathVisual(player);
     }
     public PieceGraphic GetPieceOnTile(TileGraphic tile)
     {
@@ -133,11 +137,15 @@ public class LevelBuilder : MonoBehaviour
         }
         return null;
     }
-    public void UpdatePathVisual()
+    public void UpdatePathVisual(Player player)
     {
         foreach (TileGraphic t in tiles)
         {
-            t.SetReachable(false, null);
+            if (t.Reachable == player)
+            {
+                t.SetReachable(null);
+            }
+
         }
 
 
@@ -145,7 +153,7 @@ public class LevelBuilder : MonoBehaviour
         {
             foreach (Tile tPath in player.piece.GetAllAccesibleTiles(8, this))
             {
-                tPath.cube.GetComponent<TileGraphic>().SetReachable(true, player);
+                tPath.cube.GetComponent<TileGraphic>().SetReachable(player);
             }
         }
 

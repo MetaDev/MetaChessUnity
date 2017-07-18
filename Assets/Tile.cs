@@ -9,7 +9,7 @@ public class Tile
     private float absSize;
     private float _absX;
     private float _absY;
-
+   
     private float size;
     public int Color { get; set; }
     

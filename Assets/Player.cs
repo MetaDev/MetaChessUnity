@@ -35,6 +35,11 @@ public class Player : MonoBehaviour
                ? PieceGraphic.piece : null;
         }
     }
+    public bool CanMove()
+    {
+        return builder.clock.IsPlayerTurn() && !MadeMoveInTurn;
+        
+    }
     public PieceGraphic PieceGraphic
     {
         get { return _pieceGraphic; }
@@ -46,7 +51,7 @@ public class Player : MonoBehaviour
             transform.localPosition = new Vector3(0, transform.localScale.y, 0);
             transform.localScale = new Vector3(1.0f / 2, 1, 1.0f / 2);
             //update tile in clock
-            builder.UpdatePathVisual();
+            builder.UpdatePathVisual(this);
 
         }
     }

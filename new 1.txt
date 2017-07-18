@@ -1,4 +1,12 @@
 questions:
+
+capture pieces 
+
+idea, get points for tiles colored (as some kind of mana) can be used to do more moves in time
+and pieces cannot move over tiles colored by other player (the first holds)
+the player/piece is the only hole in the wall
+increase range with mana
+
 how many moves per turn ??
 
 allow interaction between paths of pieces, few examples: path extension with friendly pieces, fading of path lenght in extension 
@@ -12,6 +20,8 @@ diag movement with hoover and combined orthogonal movement
 have two sides, take pieces by moving AI
 
 do something with the movement patterns
+
+
 
 backstory +gameplay:
 
@@ -37,8 +47,16 @@ add implicit cast between tile tilegraphic piece piecegraphic, it's a 1 1 relati
 
 TODO
 
-colour tiles based on move, keep score
+playtest
+add piece/player taking logic in PIECE not in board interaction
+incorporate reachability in movement (block it)
+
+
 test player capturing
+AI
+camera extension use scroll in and out
+colour tiles based on move, keep score
+
 
 real time tile entering move in it
 
