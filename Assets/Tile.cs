@@ -5,6 +5,7 @@ using UnityEngine;
 public class Tile
 {
     public GameObject cube;
+    
     private float absSize;
     private float _absX;
     private float _absY;
@@ -12,7 +13,7 @@ public class Tile
     private float size;
     public int Color { get; set; }
     
-
+    
     public Tile[,] Children { get; private set; }
 
    
@@ -106,6 +107,7 @@ public class Tile
             {
                 Children[i,j] = new Tile(
                         ((i + j) % 2) % 2, i, j, Level + 1, this);
+                
             }
         }
     }
@@ -160,24 +162,17 @@ public class Tile
 
     }
     //TODO
-    public float GetDrawX()
+    public float GetDrawCenterX()
     {
         return GetAbsX() + GetAbsSize() / 2;
 
     }
     //TODO
-    public float GetDrawY()
+    public float GetDrawCenterY()
     {
         return -GetAbsY() - GetAbsSize() / 2;
     }
-        public float GetAbsCenterX()
-    {
-        return GetAbsX() + GetAbsSize() / 2;
-    }
-    public float GetAbsCenterY()
-    {
-        return GetAbsY() + GetAbsSize() / 2;
-    }
+  
 
     private float GetAbsY()
     {

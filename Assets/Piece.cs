@@ -5,63 +5,40 @@ using Direction = Directions.Direction;
 public class Piece
 {
     public float Color { get; private set; }
-    public Board Board { get; private set; }
-    public PieceType Type { get; private set; }
+    public Tile tile;
     private HashSet<Direction> allowedMovement = new HashSet<Direction>();
-    public enum PieceType
-    {
-        pawn, rook, knight, bischop, king, queen
-    }
-    public Piece(PieceType type, Board board, float color)
-    {
-        this.Board = board;
-        this.Color = color;
-        this.Type = type;
-      
-        Directions.GetDiagDirections(allowedMovement);
-        //allowedMovement.Add(Directions.getDirection(1,-1));
 
-    }
-    public Tile GetTilePos()
+    public Piece(float color)
     {
-        return Board.GetTileFromPiece(this);
+        this.Color = color;
+        Directions.GetOrthoDirections(allowedMovement);
     }
-    public void SetTilePos(Tile newPos)
-    {
-        Board.ChangePiecePosition(this, newPos);
-    }
+    #region piece movement
     //find all accesible tiles
-    public List<Tile> GetAllAccesibleTiles(int range)
+    public List<Tile> GetAllAccesibleTiles(int range, LevelBuilder builder, HashSet<Piece> pieces =null)
     {
+        
+        if (pieces == null)
+        {
+           pieces = new HashSet<Piece>();
+        }
+        
         List<Tile> allTiles = new List<Tile>();
         foreach (Direction dir in allowedMovement)
         {
             int i = dir.X * range;
             int j = dir.Y * range;
-            var t = FindPath(i, j);
+            var t = FindPath(tile, builder, i, j,pieces);
             allTiles.AddRange(t);
         }
         return allTiles;
     }
-
-    //public bool HandleMovement(Direction direction, int range)
-    //{
-    //    int i = direction.X * range;
-    //    int j = direction.Y * range;
-    //    List<Tile> path = FindPath( i, j,false);
-    //    if (path.Count < range)
-    //    {
-    //        return false;
-    //    }
-    //    return MoveWithPath(path);
-    //}
-    public List<Tile> FindPath(Tile tile,int i, int j)
+    public List<Tile> FindPath(Tile tile, LevelBuilder builder, int i, int j, HashSet<Piece> pieces)
     {
         //use direction coordinates to construct a tile path
         int verMov;
         int horMov;
         int remainingHorMov = i;
-
         int remainingVerMov = j;
 
         List<Tile> path = new List<Tile>();
@@ -79,72 +56,41 @@ public class Piece
             //on the last step of the movement hoover is always false
             previousTile = Board.FindTileNeighBour(previousTile,
                         horMov, verMov);
-            
-            if (previousTile == null)
+          
+            if (previousTile == null )
             {
                 return path;
             }
+            var pieceOnPath = builder.GetPieceOnTile(previousTile.cube.GetComponent<TileGraphic>());
+            if (pieceOnPath != null)
+            {
+                
+                if (pieceOnPath.piece.Color == Color)
+                {
+                    //only extend path if the piece has not alread been seen
+                    if (!pieces.Contains(pieceOnPath.piece))
+                    {
+                        pieces.Add(pieceOnPath.piece);
+                        //extend path
+                        path.AddRange(pieceOnPath.piece.GetAllAccesibleTiles(4, builder, pieces));
+                    }
+                    else
+                    {
+                        return path;
+                    }
+
+                }
+                else
+                {
+                    return path;
+                }
+            }
+           
+            
             path.Add(previousTile);
 
         }
         return path;
-    }
-    #region piece movement
-    public List<Tile> FindPath(int i, int j)
-    {
-        return FindPath(Board.GetTileFromPiece(this), i, j);
-    }
-    public bool MoveWithPath( List<Tile> path)
-    {
-        //chech if path and last tile are valid
-
-        //first check last tile for move to be made, than check path
-        if (CheckPath(path))
-        {
-            HandleLastTileInPath(path[path.Count - 1]);
-            return true;
-        }
-        return false;
-    }
-
-    //handle movement on last tile, and set position
-    private bool HandleLastTileInPath(Tile lastTileInPath)
-    {
-        Piece pieceOnnewTile = Board
-                .GetPieceFromTile(lastTileInPath);
-        if (CanPieceKillMe(pieceOnnewTile))
-        {
-            Board.PieceTaken(this, pieceOnnewTile);
-        }
-        SetTilePos(lastTileInPath);
-        return true;
-    }
-
-    //check if path can be taken
-    private  bool CheckPath(List<Tile> path)
-    {
-        Piece pieceOnnewTile = Board
-                .GetPieceFromTile(path[path.Count - 1]);
-        //first check last tile for move to be made, than check path
-        if (pieceOnnewTile != null && !CanPieceKillMe(pieceOnnewTile))
-        {
-            return false;
-        }
-        //if not occupied continue
-        Piece pieceOnPath;
-        //check if path doesn't contain any other pieces that are in the way or burning
-        for (int i = path.Count - 1; i >= 0; i--)
-        {
-            pieceOnPath = Board.GetPieceFromTile(path[i]);
-            //if path occupied, bad path
-            if (pieceOnPath != null)
-            {
-                //no movement made
-                return false;
-            }
-        }
-
-        return true;
     }
 
     #endregion

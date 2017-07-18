@@ -1,3 +1,44 @@
+questions:
+how many moves per turn ??
 
-show where the piece can move, for piece types
-show the turn of a piece/tile
+allow interaction between paths of pieces, few examples: path extension with friendly pieces, fading of path lenght in extension 
+stoping of path after extension
+
+
+addition features:
+
+diag movement with hoover and combined orthogonal movement
+
+have two sides, take pieces by moving AI
+
+do something with the movement patterns
+
+backstory +gameplay:
+
+on the deepest real time level you are free to paint with your path however you want
+you don't get as much score as on the structured turn based one
+
+on the highest level there should be an AI sometimes being the "magic hand" moving other pieces
+this magic hand can be indirectly informed by the movements the player on the lower level makes
+
+the bigger covered tiles are implicitly more expensive
+
+all the cover tiles are reflected into the lowest real time level tile
+you cannot directly interact with the drawn structure or with the movement of your own pawns,
+but still with mindfull movement there is influence
+
+
+code improv:
+
+use rx for ui
+be able to observe the end of the start method of a gameobject
+add reactive property starting with tilegraphic reachable
+add implicit cast between tile tilegraphic piece piecegraphic, it's a 1 1 relation
+
+TODO
+
+colour tiles based on move, keep score
+test player capturing
+
+real time tile entering move in it
+
