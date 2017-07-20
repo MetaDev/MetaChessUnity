@@ -15,13 +15,29 @@ stoping of path after extension
 
 addition features:
 
+Sacrifice:
+
+-----
+real time implement, when you go into the deepest level you have an out of piece experience, you become a ghost and can release 
+previously captured pieces, the price you have to pay is that all your pieces are turned in the opposite color
+also you piece stays behind on the board, thus if it's catched you lose
+
+extra points for killing tile with player in
+
+make clock turn logarithmic scale
+
 diag movement with hoover and combined orthogonal movement
 
 have two sides, take pieces by moving AI
 
 do something with the movement patterns
 
+make a list of players instead of only two
 
+real time tile entering gameplay
+
+the camera movement should be restricted when you are able to trap the player, 
+the more pieces trapped the more camera movement is restricted to the bounding box of the path
 
 backstory +gameplay:
 
@@ -47,16 +63,23 @@ add implicit cast between tile tilegraphic piece piecegraphic, it's a 1 1 relati
 
 TODO
 
+
+board to string or to int[][]
+tile to string
+
+sync board init
+add text to inform player of network status
+add player when join button is pressed
+once the player is set, also add it to 
+send moves over network
+
+change piece does not end your turn
+
+show score of #pieces
+
 playtest
-add piece/player taking logic in PIECE not in board interaction
-incorporate reachability in movement (block it)
+
+make AI smarter, if player/pieces is within range take him
 
 
-test player capturing
-AI
-camera extension use scroll in and out
-colour tiles based on move, keep score
-
-
-real time tile entering move in it
 

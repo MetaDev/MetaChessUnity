@@ -4,33 +4,46 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-public class Board
+
+public class Board 
 {
 
-    public static int maxTurnBasedTileFraction = 64;
+ 
    
 
     public Tile RootTile { get; private set; }
    
     public static int rootSize = 8 * 64;
-    public static bool IsOverMaxFractionFromTileSize(float tilesSize)
-    {
-        return tilesSize < rootSize / maxTurnBasedTileFraction;
-    }
-
+   
     public Board()
     {
         this.RootTile = new Tile(0, rootSize);
         RootTile.Divide(8);
 
     }
-    
-
-    public void RandomFractionBoard(int iterations = 20)
+    Tile GetTileByIJs(List<Tuple<int, int>> IJs)
     {
+        var it = RootTile;
+        foreach (Tuple<int, int> IJ in IJs)
+        {
+            it=it.Children[IJ.Item1, IJ.Item2];
+        }
+        return it;
+    }
+    public void ApplyFraction(List<Tuple<List<Tuple<int,int>>,int>> IJsAndFraction)
+    {
+        foreach(Tuple<List<Tuple<int, int>>, int> tup in IJsAndFraction)
+        {
+            GetTileByIJs(tup.Item1).Divide(tup.Item2);
 
+        }
+    }
+    //return command list of fracioned 
+    public List<Tuple<List<Tuple<int, int>>, int>> GetRandomFractionBoard(int iterations = 20)
+    {
+        var IJsAndFraction = new List<Tuple<List<Tuple<int, int>>, int>>();
         int fractionUnderMaxFraction = 32;
-        int maxAbsFraction = maxTurnBasedTileFraction
+        int maxAbsFraction = Clock.maxFractionTurnBased
                 + fractionUnderMaxFraction;
         // the more iterations the more fractioned tiles
         int randFraction;
@@ -42,13 +55,12 @@ public class Board
             randFraction = (int)System.Math.Pow(2, RangeIncl(1, 3));
             // pick a random max level of depth
 
-            randAbsFraction = RangeIncl(8, maxAbsFraction);
-
+            randAbsFraction = (int) Mathf.Pow(2,RangeIncl(1, 3));
+            var randTile = GetRandomTile();
             // now choose random tile
-            GetRandomTile().Divide(randFraction);
-
+            IJsAndFraction.Add(Tuple.Create(randTile.IJs,randAbsFraction));
         }
-
+        return IJsAndFraction;
 
     }
    

@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
-
-public class Tile
+using UniRx;
+public class Tile 
 {
+   
     public GameObject cube;
-    
+    public TileGraphic TileGraphic { get{ return cube.GetComponent<TileGraphic>(); } }
     private float absSize;
     private float _absX;
     private float _absY;
-   
+
     private float size;
     public int Color { get; set; }
     
@@ -54,7 +56,7 @@ public class Tile
         this.I = i;
         this.J = j;
         this.absSize = GetAbsSize();
-
+        this.IJs = GetIJs(new List<Tuple<int, int>>());
     }
 
     
@@ -160,6 +162,19 @@ public class Tile
         return _absX;
        
 
+    }
+    public List<Tuple<int, int>> IJs { get; private set; }
+    protected List<Tuple<int,int>> GetIJs(List<Tuple<int, int>> list)
+    {
+        //insert your coordinates at the beginning
+       
+        if (parent != null)
+        {
+            list.Insert(0, Tuple.Create(I, J));
+            parent.GetIJs(list);
+        }
+        return list;
+        
     }
     //TODO
     public float GetDrawCenterX()
