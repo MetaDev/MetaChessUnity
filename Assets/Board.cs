@@ -21,11 +21,12 @@ public class Board
         RootTile.Divide(8);
 
     }
-    Tile GetTileByIJs(List<Tuple<int, int>> IJs)
+   public Tile GetTileByIJs(List<Tuple<int, int>> IJs)
     {
         var it = RootTile;
         foreach (Tuple<int, int> IJ in IJs)
         {
+            Debug.Log(IJ.Item1+ ","+ IJ.Item2);
             it=it.Children[IJ.Item1, IJ.Item2];
         }
         return it;

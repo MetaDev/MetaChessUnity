@@ -67,7 +67,7 @@ public class Player : MonoBehaviour
         {
             _pieceGraphic = value;
             transform.SetParent(PieceGraphic.transform);
-            MadeMoveInTurn = true;
+            //MadeMoveInTurn = true;
             transform.localPosition = new Vector3(0, transform.localScale.y, 0);
             transform.localScale = new Vector3(1.0f / 2, 1, 1.0f / 2);
             //update tile in clock
@@ -126,7 +126,7 @@ public class Player : MonoBehaviour
                 if (tileGr.Reachable==this)
                 {
                     //move player piece
-                    builder.SetPieceOnTile(this, tileGr);
+                    builder.SetPlayerOnTile(this, tileGr);
                 }
             }
 

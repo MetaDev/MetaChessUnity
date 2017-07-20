@@ -5,14 +5,22 @@ using UnityEngine;
 using MoreLinq;
 using UniRx.Triggers;
 using UniRx;
+using TileIJ = System.Collections.Generic.List<UniRx.Tuple<int, int>>;
+
 public class LevelBuilder : MonoBehaviour
 {
+    public int NrOfPieces = 100;
     //instead of square pass tile prefab
     public GameObject square;
     //piece prefab
     public PieceGraphic piecePrefab;
 
     //to be sent to next clients
+    public Map<PieceGraphic, TileGraphic> pieceTile = new Map<PieceGraphic, TileGraphic>();
+
+    public DataSync DataSync;
+
+
     public Board board;
     public List<Player> players;
 
@@ -20,60 +28,42 @@ public class LevelBuilder : MonoBehaviour
     public CameraBehaviour CamBehaviour;
     public BoardInteraction BI;
     public Player PlayerPrefab;
-    
+
     public Player LocalPlayer { get; private set; }
     public void SetLocalPlayer(Player player)
     {
         LocalPlayer = player;
         clock.Init(player);
         CamBehaviour.Init(player);
+        
     }
-    
+
     private List<TileGraphic> tiles = new List<TileGraphic>();
-    public Map<PieceGraphic, TileGraphic> pieceTile = new Map<PieceGraphic, TileGraphic>();
+
 
     public int score;
     // Use this for initialization
     void Start()
     {
 
-        //board = new Board();
-        //board.RandomFractionBoard(20);
-        //draw has to be run before other code that uses the tile cubes
-        //ProcDraw.DrawBoardRecursive(square, tiles, board.RootTile);
-        //foreach (int i in Enumerable.Range(1, 100))
-        //{
-        //    //init game object
-        //    var piece = Instantiate(piecePrefab);
-        //    piece.init(this, i % 2);
-        //    //add to game
-        //    SetPieceOnTile(piece, GetRandomUnoccupiedTile());
-        //}
 
-        //assign player to random piece
-        //this is seperate because all start methods need to be run before calling this
-        // Debug.Log(PieceGraphic.)
-        //Debug.Log(GetRandomPieceFromSide(player2.side));
-
-        //player2.PieceGraphic = GetRandomPieceFromSide(player2.side);
-        //Debug.Log(player2.piece);
     }
-    public List<Tuple<List<Tuple<int, int>>, int>> InitBoard(List<Tuple<List<Tuple<int, int>>, int>> IJsAndfraction=null)
+    public List<Tuple<List<Tuple<int, int>>, int>> InitBoard(List<Tuple<List<Tuple<int, int>>, int>> IJsAndfraction = null)
     {
         board = new Board();
-        List<Tuple<List<Tuple<int, int>>, int>> res =null;
+        List<Tuple<List<Tuple<int, int>>, int>> res = null;
         if (IJsAndfraction == null)
         {
-           res= board.GetRandomFractionBoard(20);
-           board.ApplyFraction(res);
-            
+            res = board.GetRandomFractionBoard(20);
+            board.ApplyFraction(res);
+
         }
         else
         {
             board.ApplyFraction(IJsAndfraction);
-            
+
         }
-        
+
         return res;
     }
     public void DrawBoard()
@@ -81,17 +71,30 @@ public class LevelBuilder : MonoBehaviour
         //draw has to be run before other code that uses the tile cubes
         ProcDraw.DrawBoardRecursive(square, tiles, board.RootTile);
     }
-    public void InitDrawPieces(Map<PieceGraphic, TileGraphic> pieceTile=null)
+    public List<Tuple<List<Tuple<int, int>>, int>> GeneratePieces()
     {
-        foreach (int i in Enumerable.Range(1, 100))
+        var tileSet = new HashSet<TileIJ>();
+        var list = new List<Tuple<List<Tuple<int, int>>, int>>();
+        foreach (int i in Enumerable.Range(1, NrOfPieces))
         {
-            //init game object
+            var pTile = GetRandomUnoccupiedTile(tileSet);
+            tileSet.Add(pTile.tile.IJs);
+            list.Add(Tuple.Create(pTile.tile.IJs, i % 2));
+
+        }
+
+        return list;
+    }
+    public void DrawInitPieces(List<Tuple<List<Tuple<int, int>>, int>> list)
+    {
+        foreach (Tuple<List<Tuple<int, int>>, int> tup in list)
+        {
             var piece = Instantiate(piecePrefab);
-            piece.init(this, i % 2);
-            //add to game
-            SetPieceOnTile(piece, GetRandomUnoccupiedTile());
+            piece.init(this,tup.Item2);
+            SetPieceOnTile(piece, board.GetTileByIJs(tup.Item1).TileGraphic);
         }
     }
+   
 
     public Player AddPlayer(int side)
     {
@@ -102,12 +105,12 @@ public class LevelBuilder : MonoBehaviour
     }
     public IEnumerable<Player> GetPlayersFromSide(int side)
     {
-        return players.Where(player => player.side == side) ;
+        return players.Where(player => player.side == side);
     }
-    
-   public Player GetPlayerFromPiece(PieceGraphic pieceGr)
+
+    public Player GetPlayerFromPiece(PieceGraphic pieceGr)
     {
-        return players.Where(player => player.PieceGraphic==pieceGr).FirstOrDefault();
+        return players.Where(player => player.PieceGraphic == pieceGr).FirstOrDefault();
     }
     public List<PieceGraphic> GetAllPiecesFromSide(int side)
     {
@@ -116,17 +119,21 @@ public class LevelBuilder : MonoBehaviour
     public PieceGraphic GetRandomPieceFromSide(int side)
     {
         var pieces = GetAllPiecesFromSide(side);
-      
+
         return pieces.Skip(Random.Range(0, pieces.Count() - 1)).FirstOrDefault();
-   
+
     }
-    TileGraphic GetRandomUnoccupiedTile()
+    
+    TileGraphic GetRandomUnoccupiedTile(HashSet<TileIJ> occupied=null)
     {
         TileGraphic tile = null;
+        
+        bool ocT = false;
         do
         {
             tile = tiles[Random.Range(0, tiles.Count() - 1)];
-        } while (pieceTile.Reverse.Contains(tile));
+            ocT = occupied == null ? pieceTile.Reverse.Contains(tile) : occupied.Contains(tile.tile.IJs);
+        } while (ocT);
         return tile;
     }
     // Update is called once per frame
@@ -141,16 +148,16 @@ public class LevelBuilder : MonoBehaviour
         pieceG.SetPiecePosition(tileGr);
 
     }
-    public void SetPieceOnTile(Player player, TileGraphic tileGr)
+    public void SetPlayerOnTile(Player player, TileGraphic tileGr)
     {
         if (pieceTile.Reverse.Contains(tileGr))
         {
             Debug.Log("you're trying to place a player on tile that is already occupied");
             return;
         }
-       
+
         pieceTile.Remove(player.PieceGraphic);
-       
+
         pieceTile.Add(player.PieceGraphic, tileGr);
         player.SetPiecePosition(tileGr);
         UpdatePathVisual(player);
@@ -185,7 +192,7 @@ public class LevelBuilder : MonoBehaviour
 
         if (player != null && player.piece != null)
         {
-            foreach (Tile tPath in player.piece.GetAllAccesibleTiles(8, this,player))
+            foreach (Tile tPath in player.piece.GetAllAccesibleTiles(8, this, player))
             {
                 tPath.cube.GetComponent<TileGraphic>().SetReachable(player);
             }
