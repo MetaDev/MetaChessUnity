@@ -22,7 +22,7 @@ public class LevelBuilder : MonoBehaviour
 
 
     public Board board;
-    public List<Player> players;
+    public Dictionary<int, Player> players = new Dictionary<int, Player>();
 
     public ClockScript clock;
     public CameraBehaviour CamBehaviour;
@@ -37,17 +37,19 @@ public class LevelBuilder : MonoBehaviour
         CamBehaviour.Init(player);
         
     }
-
+    //To test
+    public void ResetGame()
+    {
+        players = new Dictionary<int, Player>();
+        pieceTile = new Map<PieceGraphic, TileGraphic>();
+        board = null;
+    }
     private List<TileGraphic> tiles = new List<TileGraphic>();
 
-
+    //TODO
     public int score;
     // Use this for initialization
-    void Start()
-    {
-
-
-    }
+   
     public List<Tuple<List<Tuple<int, int>>, int>> InitBoard(List<Tuple<List<Tuple<int, int>>, int>> IJsAndfraction = null)
     {
         board = new Board();
@@ -90,27 +92,41 @@ public class LevelBuilder : MonoBehaviour
         foreach (Tuple<List<Tuple<int, int>>, int> tup in list)
         {
             var piece = Instantiate(piecePrefab);
-            piece.init(this,tup.Item2);
-            SetPieceOnTile(piece, board.GetTileByIJs(tup.Item1).TileGraphic);
+            var tile = board.GetTileByIJs(tup.Item1).TileGraphic;
+            piece.init(this, tup.Item2, tile);
+            UpdatePiecePosition(piece, tile);
         }
     }
-   
-
-    public Player AddPlayer(int side)
+   public PieceGraphic GetPieceGraphicByName(string Name)
+    {
+        var t = PhotonNetwork.player.ID;
+        return pieceTile.AsEnumerable().Select(p => p.Key).Where(p => p.Name==Name).FirstOrDefault();
+    }
+ 
+    public Player AddPlayer(int side,int id,Color32 col, PieceGraphic pg=null)
     {
         var player = Instantiate(PlayerPrefab);
-        player.side = side;
-        player.PieceGraphic = GetRandomPieceFromSide(side);
+        
+        player.Init(this, side, id, col);
+        var piece = pg == null ? GetRandomPieceFromSide(side) : pg;
+        player.StartOnPiece(piece);
+        //if no tile is given, this means that it's being decided by this client, meaning it's the local player
+        if (pg == null)
+        {
+            SetLocalPlayer(player);
+        }
+        players[id] = player;
         return player;
+
     }
     public IEnumerable<Player> GetPlayersFromSide(int side)
     {
-        return players.Where(player => player.side == side);
+        return players.Values.Where(player => player.side == side);
     }
 
     public Player GetPlayerFromPiece(PieceGraphic pieceGr)
     {
-        return players.Where(player => player.PieceGraphic == pieceGr).FirstOrDefault();
+        return players.Values.Where(player => player.PieceGraphic == pieceGr).FirstOrDefault();
     }
     public List<PieceGraphic> GetAllPiecesFromSide(int side)
     {
@@ -139,29 +155,20 @@ public class LevelBuilder : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+      
     }
-    private void SetPieceOnTile(PieceGraphic pieceG, TileGraphic tileGr)
-    {
-        pieceTile.Remove(pieceG);
-        pieceTile.Add(pieceG, tileGr);
-        pieceG.SetPiecePosition(tileGr);
-
-    }
-    public void SetPlayerOnTile(Player player, TileGraphic tileGr)
+   public void UpdatePiecePosition(PieceGraphic pieceG, TileGraphic tileGr)
     {
         if (pieceTile.Reverse.Contains(tileGr))
         {
             Debug.Log("you're trying to place a player on tile that is already occupied");
             return;
         }
+        pieceTile.Remove(pieceG);
+        pieceTile.Add(pieceG, tileGr);
 
-        pieceTile.Remove(player.PieceGraphic);
-
-        pieceTile.Add(player.PieceGraphic, tileGr);
-        player.SetPiecePosition(tileGr);
-        UpdatePathVisual(player);
     }
+  
     public PieceGraphic GetPieceOnTile(TileGraphic tile)
     {
         if (pieceTile.Reverse.Contains(tile))

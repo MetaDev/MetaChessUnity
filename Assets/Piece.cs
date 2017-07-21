@@ -65,7 +65,7 @@ public class Piece
                 return path;
             }
             //if the tile is reachable by player of opposite side, stop
-            if (previousTile.TileGraphic.Reachable.side==((player.side + 1) % 2))
+            if (previousTile.TileGraphic.Reachable!=null && previousTile.TileGraphic.Reachable.side==((player.side + 1) % 2))
             {
                 return path;
             }

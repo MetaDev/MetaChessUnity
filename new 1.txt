@@ -15,6 +15,11 @@ stoping of path after extension
 
 addition features:
 
+when doind a move you can send both the piece and the tile, but one of both could also be derived at the slave client side
+this could be a consistency check
+
+check if it is necessary to build the board after everyone is connected, according to photon the server send last message to joiners
+
 Sacrifice:
 
 -----
@@ -32,7 +37,6 @@ have two sides, take pieces by moving AI
 
 do something with the movement patterns
 
-make a list of players instead of only two
 
 real time tile entering gameplay
 
@@ -61,22 +65,34 @@ be able to observe the end of the start method of a gameobject
 add reactive property starting with tilegraphic reachable
 add implicit cast between tile tilegraphic piece piecegraphic, it's a 1 1 relation
 
+make time left with rx
+
 TODO
 
 
-update piece position
-playerpos tile to string
 
+update moves
+
+allow player to choose it's color
+
+the game should wait to sync turns 
+
+add gui button reconnect (leave/join room)
 test whether piece change ends turn
+
+make some kind of config flow for multiplayer session, wait for connect, built if master, than join button appears (with color of already existing players)
+
+be able to get clock remaining time
 change clock to DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond
 remove observable or sync the clock on the system timespan with timer, but I would need to test this
+the clock observable should emit as unit the smallest turn, synced to the clock, such that on the smallest fraction you do 
+
+remaining time is the absolutate time modulo your turn
 
 add text to inform player of network status
 add player when join button is pressed
 once the player is set, also add it to 
 send moves over network
-
-change piece does not end your turn
 
 show score of #pieces
 
