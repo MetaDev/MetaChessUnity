@@ -123,7 +123,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
         ////add pieces
         var piecesOnBoard = builder.GeneratePieces();
         builder.DrawInitPieces(piecesOnBoard);
-        //TODO change to send board
+        //TODO change method to sendBoard
         boardDivisionsData = Serialisation.TileIJsIntListToString(boardDivisions);
         piecesOnBoardData = Serialisation.TileIJsIntListToString(piecesOnBoard);
 

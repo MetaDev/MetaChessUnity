@@ -26,6 +26,7 @@ public class Board
         var it = RootTile;
         foreach (Tuple<int, int> IJ in IJs)
         {
+            
             it=it.Children[IJ.Item1, IJ.Item2];
         }
         return it;

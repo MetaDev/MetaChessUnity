@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TileGraphic : MonoBehaviour
 {
-    public BoardInteraction BI;
+
     public Tile tile;
     //null
     public Color captured;
@@ -26,15 +26,5 @@ public class TileGraphic : MonoBehaviour
     }
     public Player Reachable { get; private set; }
 
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+ 
 }

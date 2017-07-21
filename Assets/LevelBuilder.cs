@@ -16,13 +16,13 @@ public class LevelBuilder : MonoBehaviour
     public PieceGraphic piecePrefab;
 
     //to be sent to next clients
-    public Map<PieceGraphic, TileGraphic> pieceTile = new Map<PieceGraphic, TileGraphic>();
-
+    public Map<PieceGraphic, TileGraphic> pieceTile;
+    private List<TileGraphic> tiles;
     public DataSync DataSync;
 
 
     public Board board;
-    public Dictionary<int, Player> players = new Dictionary<int, Player>();
+    public Dictionary<int, Player> players;
 
     public ClockScript clock;
     public CameraBehaviour CamBehaviour;
@@ -38,20 +38,42 @@ public class LevelBuilder : MonoBehaviour
         
     }
     //To test
-    public void ResetGame()
+    void resetGame()
     {
+        //reverse order of creation
+        //first player than pieces and tiles
+        foreach (Player pl in players.Values)
+        {
+            DestroyImmediate(pl.gameObject);
+        }
+        foreach (PieceGraphic pg in pieceTile.AsEnumerable().Select(p => p.Key))
+        {
+            DestroyImmediate(pg.gameObject);
+        }
+        foreach (TileGraphic tileG in tiles)
+        {
+            DestroyImmediate(tileG.gameObject);
+        }
+       
+        
+        LocalPlayer = null;
+        board = null;
         players = new Dictionary<int, Player>();
         pieceTile = new Map<PieceGraphic, TileGraphic>();
-        board = null;
-    }
-    private List<TileGraphic> tiles = new List<TileGraphic>();
+        tiles = new List<TileGraphic>();
 
-    //TODO
-    public int score;
-    // Use this for initialization
+    }
+   
    
     public List<Tuple<List<Tuple<int, int>>, int>> InitBoard(List<Tuple<List<Tuple<int, int>>, int>> IJsAndfraction = null)
     {
+        if (board != null)
+        {
+            resetGame();
+        }
+        players = new Dictionary<int, Player>();
+        pieceTile = new Map<PieceGraphic, TileGraphic>();
+        tiles = new List<TileGraphic>();
         board = new Board();
         List<Tuple<List<Tuple<int, int>>, int>> res = null;
         if (IJsAndfraction == null)
@@ -96,6 +118,10 @@ public class LevelBuilder : MonoBehaviour
             piece.init(this, tup.Item2, tile);
             UpdatePiecePosition(piece, tile);
         }
+    }
+    public int GetLocalScore()
+    {
+        return pieceTile.AsEnumerable().Where(p => p.Key.piece.Color == LocalPlayer.side).Count();
     }
    public PieceGraphic GetPieceGraphicByName(string Name)
     {
