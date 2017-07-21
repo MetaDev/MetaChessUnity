@@ -17,7 +17,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
     string boardDivisionsData = "";
     string piecesOnBoardData = "";
     string playerEnterTilePieceData = "";
-    string newPlayer = "";
+    string newPlayerData = "";
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
@@ -30,9 +30,9 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
             stream.SendNext(boardDivisionsData);
             stream.SendNext(piecesOnBoardData);
             stream.SendNext(playerEnterTilePieceData);
-            stream.SendNext(newPlayer);
+            stream.SendNext(newPlayerData);
             //reset, if not done the object keeps sending
-            boardDivisionsData = newPlayer=playerEnterTilePieceData = piecesOnBoardData = "";
+            boardDivisionsData = newPlayerData = playerEnterTilePieceData = piecesOnBoardData = "";
             //send combo player piece -> int / list<tuple<int,int>>
         }
         else
@@ -46,6 +46,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
             
             if (piecesOnBoardData != "" && boardDivisionsData != "")
             {
+                Debug.Log("board received");
                 initBoardWithData(boardDivisionsData, piecesOnBoardData);
             }
             if (playerOnPieceData != "")
@@ -57,7 +58,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
                 ReceiveNewPlayer(newPlayerData);
             }
            
-            boardDivisionsData =newPlayer= piecesOnBoardData = playerOnPieceData = "";
+            boardDivisionsData = newPlayerData = piecesOnBoardData = playerOnPieceData = "";
         }
     }
     public void SendPlayerEnterTilePiece(Player player, TileGraphic tileGr, PieceGraphic pg)
@@ -79,7 +80,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
         var col = StringToColor( pt[1]);
         var side = Convert.ToInt32(pt[2]);
         var PieceName = pt[3];
-        builder.AddPlayer(side, id, col, builder.GetPieceGraphicByName(PieceName));
+        builder.AddPlayer(id, side, col, builder.GetPieceGraphicByName(PieceName));
     }
     string ColorToString(Color32 col)
     {
@@ -92,7 +93,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
     void SendNewPlayer(Player player)
     {
         Color32 col = player.col;
-        newPlayer = player.ID+"-" + ColorToString(col) + "-" + player.side + '-' + Serialisation.TileIJsToString(player.tile.IJs) ;
+        newPlayerData = player.ID+"-" + ColorToString(col) + "-" + player.side + '-' + Serialisation.TileIJsToString(player.tile.IJs) ;
     }
 
     void initBoardWithData(string boardData, string piecesData)
@@ -108,7 +109,7 @@ public class DataSync : Photon.PunBehaviour, IPunObservable
     public void Join(bool white)
     {
         int side = white ? 1 : 0;
-        var player = builder.AddPlayer(side, PhotonNetwork.player.ID, UnityEngine.Random.ColorHSV());
+        var player = builder.AddPlayer( PhotonNetwork.player.ID, side, UnityEngine.Random.ColorHSV());
         SendNewPlayer(player);
     }
     LevelBuilder builder;

@@ -125,11 +125,11 @@ public class LevelBuilder : MonoBehaviour
     }
    public PieceGraphic GetPieceGraphicByName(string Name)
     {
-        var t = PhotonNetwork.player.ID;
+        
         return pieceTile.AsEnumerable().Select(p => p.Key).Where(p => p.Name==Name).FirstOrDefault();
     }
  
-    public Player AddPlayer(int side,int id,Color32 col, PieceGraphic pg=null)
+    public Player AddPlayer(int id,int side,Color32 col, PieceGraphic pg=null)
     {
         var player = Instantiate(PlayerPrefab);
         

@@ -7,7 +7,7 @@ public class UI : MonoBehaviour {
     public Button BuildButton;
     public Button JoinButton;
     public Toggle WhiteToggle;
-  
+    public Text text;
 	// Use this for initialization
 	void Start () {
         BuildButton.OnClickAsObservable().Subscribe(_ =>
@@ -22,7 +22,16 @@ public class UI : MonoBehaviour {
        
         //TODO join button
     }
-	
+    
+	public void ShowMessage(string textchars)
+    {
+        text.enabled = true;
+        text.text = textchars;
+    }
+    public void CloseMessage()
+    {
+        text.enabled = false;
+    }
 	// Update is called once per frame
 	void Update () {
 		

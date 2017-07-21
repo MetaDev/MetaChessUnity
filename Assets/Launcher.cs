@@ -6,6 +6,7 @@ public class Launcher
    : Photon.PunBehaviour
 {
     public GameObject DataSyncPrefab;
+    
     /// <summary>
     /// This client's version number. Users are separated from each other by gameversion (which allows you to make breaking changes).
     /// </summary>
@@ -49,6 +50,7 @@ public class Launcher
     void Start()
     {
         Connect();
+        
     }
 
     /// <summary>
@@ -113,7 +115,7 @@ public class Launcher
     {
         Debug.Log("DemoAnimator/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.");
         PhotonNetwork.Instantiate(this.DataSyncPrefab.name, Vector3.zero, Quaternion.identity, 0);
-        
+      
     }
     public override void OnPhotonPlayerConnected(PhotonPlayer other)
     {

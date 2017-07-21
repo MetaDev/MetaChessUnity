@@ -17,8 +17,9 @@ public class Serialisation {
    
     public static Tuple<Player,TileGraphic,PieceGraphic> StringToPlayerEnterTilePiece(LevelBuilder builder, string playerTilePiece)
     {
+        Debug.Log(playerTilePiece);
         string[] ptp = playerTilePiece.Split('-');
-
+        Debug.Log(Convert.ToInt32(ptp[0]));
         var player = builder.players[Convert.ToInt32(ptp[0])];
         var tile = ptp[1]==""? null: builder.board.GetTileByIJs(StringToTileIJs(ptp[1])).TileGraphic;
         var piece = ptp[2] == ""? null: builder.GetPieceGraphicByName(ptp[2]);

@@ -119,13 +119,8 @@ public class Player : MonoBehaviour
         }
         else if (pieceGr != null)
         {
-            Debug.Log(builder);
-            Debug.Log(pieceGr);
             tileGr = builder.GetTileFromPiece(pieceGr);
         }
-        
-        
-       
         if (tileGr != null)
         {
             var tile = tileGr.tile;

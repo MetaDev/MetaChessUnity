@@ -69,11 +69,14 @@ make time left with rx
 TODO
 
 
+text message wait for connection
+mouse wheel + click and drag movement
 
-add gui button restart game (do it when player is captured)
+catching a black piece takes a turn
+
 button for reconnect network (leave/join room)
 
-text message wait for connection
+
 
 allow player to choose it's color-> r g b input 
 
